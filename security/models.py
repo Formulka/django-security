@@ -334,7 +334,7 @@ class CeleryTaskManager(models.Manager):
     def filter_stale(self, **kwargs):
         return self.filter(
             state__in={CeleryTaskLogState.WAITING, CeleryTaskLogState.ACTIVE, CeleryTaskLogState.RETRIED},
-            changed_at__lt=timezone.now() - timedelta(minutes=settings.CELERY_STALE_TASK_TIME_LIMIT_MINUTES)
+            expires__gt=timezone.now()
         )
 
 
@@ -351,6 +351,10 @@ class CeleryTaskLog(SmartModel):
     queue_name = models.CharField(verbose_name=_('queue name'), null=True, blank=True, max_length=250)
     input = models.TextField(blank=True, null=True, editable=False, verbose_name=_('input'))
     output = models.TextField(blank=True, null=True, editable=False, verbose_name=_('output'))
+    retries = models.PositiveSmallIntegerField(verbose_name=_('retries'), null=False, blank=False, default=0)
+    estimated_time_of_arrival = models.DateTimeField(verbose_name=_('estimated time of arrival'), null=False,
+                                                     blank=False)
+    expires = models.DateTimeField(verbose_name=_('estimated time of arrival'), null=True, blank=True)
 
     class Meta:
         verbose_name = _('celery task')

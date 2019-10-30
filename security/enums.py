@@ -30,3 +30,4 @@ class CeleryTaskLogState(ChoiceEnum):
     SUCCEEDED = Choice(3, _('Succeeded'))
     FAILED = Choice(4, _('Failed'))
     RETRIED = Choice(5, _('Retried'))
+    EXPIRED = Choice(6, _('Expired'))
