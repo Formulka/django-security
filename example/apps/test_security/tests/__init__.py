@@ -9,7 +9,7 @@ from django.db import transaction
 import responses
 
 from security.models import (
-    InputLoggedRequest, OutputLoggedRequest, CommandLog, LoggedRequestStatus, CeleryTaskLog, CeleryTaskLogState
+    InputLoggedRequest, OutputLoggedRequest, CommandLog, LoggedRequestStatus, CeleryTaskLog, CeleryTaskLogState, hide_sensitive_data_body
 )
 from security.management import call_command
 from security.transport import security_requests as requests
@@ -314,6 +314,14 @@ class SecurityTestCase(BaseTestCaseMixin, ClientTestCase):
         requests.post('http://test.cz?a=1&a=2', params={'b': '6', 'a': '3', 'c': ['5']})
         output_logged_request = OutputLoggedRequest.objects.get()
         assert_equal(output_logged_request.queries, {'b': '6', 'a': ['3', '1', '2'], 'c': '5'})
+
+    @override_settings(SECURITY_HIDE_SENSITIVE_DATA_PATTERNS={'BODY': (r'<password>([^<]*)',)})
+    @data_provider((
+        ('<password>foo</password>', '<password>[Filtered]</password>'),
+        ('<Password>foo</Password>', '<Password>[Filtered]</Password>'),
+    ))
+    def test_response_body_secret_should_be_filtered(self, request_body, filtered_body):
+        assert_equal(filtered_body, hide_sensitive_data_body(request_body))
 
     def test_celery_task_should_be_logged(self):
         sum_task.apply_async(args=(5, 8))
