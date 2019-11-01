@@ -271,12 +271,12 @@ class PurgeLogsBaseCommand(BaseCommand):
                     self.stderr.write(force_text(ex))
 
 
-def regex_sub_groups_global(pattern, repl, string):
+def regex_sub_groups_global(pattern, repl, string, flags=0):
     """
     Globally replace all groups inside pattern with `repl`.
     If `pattern` doesn't have groups the whole match is replaced.
     """
-    for search in reversed(list(re.finditer(pattern, string))):
+    for search in reversed(list(re.finditer(pattern, string, flags))):
         for i in range(len(search.groups()), 0 if search.groups() else -1, -1):
             start, end = search.span(i)
             string = string[:start] + repl + string[end:]

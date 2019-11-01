@@ -50,7 +50,7 @@ def display_json(value, indent=4):
 
 def hide_sensitive_data_body(content):
     for pattern in settings.HIDE_SENSITIVE_DATA_PATTERNS.get('BODY', ()):
-        content = regex_sub_groups_global(pattern, settings.SENSITIVE_DATA_REPLACEMENT, content)
+        content = regex_sub_groups_global(pattern, settings.SENSITIVE_DATA_REPLACEMENT, content, re.IGNORECASE)
     return content
 
 
